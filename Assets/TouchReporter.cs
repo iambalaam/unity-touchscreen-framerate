@@ -93,17 +93,25 @@ public class TouchReporter : MonoBehaviour
                 {
                     var touch = touchscreen.touches[i];
                     var phase = touch.phase.ReadValue();
-                    if (phase != TouchPhase.None && phase != TouchPhase.Ended)
+                    switch (phase)
                     {
-                        var pos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x.ReadValue(),
-                            touch.position.y.ReadValue(), _z));
-                        _objs[i].transform.position = pos;
-                        _objs[i].SetActive(true);
-                        continue;
-                    }
-                    else
-                    {
-                        _objs[i].SetActive(false);
+                        case TouchPhase.Began:
+                        case TouchPhase.Moved:
+                        case TouchPhase.Stationary:
+                            var pos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x.ReadValue(),
+                                touch.position.y.ReadValue(), _z));
+                            _objs[i].transform.position = pos;
+                            _objs[i].SetActive(true);
+                            continue;
+
+                        case TouchPhase.Ended:
+                        case TouchPhase.None:
+                        case TouchPhase.Canceled:
+                            _objs[i].SetActive(false);
+                            break;
+                        
+                        default:
+                            throw new Exception($"Unknown touch phase: {phase.ToString()}");
                     }
                 }
 

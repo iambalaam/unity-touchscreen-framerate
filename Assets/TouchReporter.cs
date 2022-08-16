@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
@@ -47,6 +48,11 @@ public class TouchReporter : MonoBehaviour
         }
     }
 
+    public void setFPS(int fps)
+    {
+        Application.targetFrameRate = fps;
+    }
+
     private void Update()
     {
         if (enhancedTouch)
@@ -63,12 +69,14 @@ public class TouchReporter : MonoBehaviour
     private void UpdateEnhancedTouch()
     {
         var touches = Touch.activeTouches;
-        tmPro.text = $"(EnhancedTouch) Touch.activeTouches\nTouches: {touches.Count}";
+        var deltas = new List<Vector2>();
+
         for (int i = 0; i < ObjectPoolCount; i++)
         {
             if (i < Touch.activeTouches.Count)
             {
                 var touch = Touch.activeTouches[i];
+                deltas.Add(touch.delta);
                 var pos = Camera.main.ScreenToWorldPoint(
                     new Vector3(touch.screenPosition.x, touch.screenPosition.y, _z));
                 _objs[i].transform.position = pos;
@@ -79,6 +87,9 @@ public class TouchReporter : MonoBehaviour
                 _objs[i].SetActive(false);
             }
         }
+
+        var deltasString = String.Join("\n", deltas);
+        tmPro.text = $"(EnhancedTouch) Touch.activeTouches\nTouches: {touches.Count}\n{deltasString}";
     }
 
     private void UpdateTouchScreen()
@@ -86,7 +97,8 @@ public class TouchReporter : MonoBehaviour
         var touchscreen = Touchscreen.current;
         if (touchscreen != null)
         {
-            tmPro.text = $"(Touchscreen) Touchscreen.touches\nTouches: {touchscreen.touches.Count}";
+            var deltas = new List<Vector2>();
+            
             for (int i = 0; i < ObjectPoolCount; i++)
             {
                 if (i < touchscreen.touches.Count)
@@ -100,6 +112,7 @@ public class TouchReporter : MonoBehaviour
                         case TouchPhase.Stationary:
                             var pos = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x.ReadValue(),
                                 touch.position.y.ReadValue(), _z));
+                            deltas.Add(touch.delta.ReadValue());
                             _objs[i].transform.position = pos;
                             _objs[i].SetActive(true);
                             continue;
@@ -117,6 +130,8 @@ public class TouchReporter : MonoBehaviour
 
                 _objs[i].SetActive(false);
             }
+            var deltasString = String.Join("\n", deltas);
+            tmPro.text = $"(Touchscreen) Touchscreen.touches\nTouches: {touchscreen.touches.Count}\n{deltasString}";
         }
     }
 }

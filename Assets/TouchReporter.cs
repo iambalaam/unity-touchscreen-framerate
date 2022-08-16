@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.UI;
 using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 using TouchPhase = UnityEngine.InputSystem.TouchPhase;
 
@@ -13,6 +14,8 @@ public class TouchReporter : MonoBehaviour
     [SerializeField] private float _z;
 
     [SerializeField] private TextMeshProUGUI tmPro;
+    [SerializeField] private Button toggle;
+    private TextMeshProUGUI _toggleText;
     [SerializeField] private GameObject obj;
     private GameObject[] _objs;
     private const int ObjectPoolCount = 20;
@@ -20,10 +23,27 @@ public class TouchReporter : MonoBehaviour
     private void Start()
     {
         EnhancedTouchSupport.Enable();
+
+        _toggleText = toggle.GetComponentInChildren<TextMeshProUGUI>();
+        
         _objs = new GameObject[ObjectPoolCount];
         for (int i = 0; i < ObjectPoolCount; i++)
         {
             _objs[i] = Instantiate(obj, transform);
+        }
+    }
+
+    public void ToggleEnhanced()
+    {
+        if (enhancedTouch)
+        {
+            enhancedTouch = false;
+            _toggleText.text = "EnhancedTouch";
+        }
+        else
+        {
+            enhancedTouch = true;
+            _toggleText.text = "NormalTouch";
         }
     }
 
